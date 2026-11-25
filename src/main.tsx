@@ -9,17 +9,19 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      staleTime: 1000 * 10,
+      staleTime: 10000,
     },
   },
 })
 
 async function startApp() {
-  if (import.meta.env.DEV) {
-    const { worker } = await import('./mocks/browser')
+  const { worker } = await import('./mocks/browser')
 
-    await worker.start()
-  }
+  await worker.start({
+    serviceWorker: {
+      url: `${import.meta.env.BASE_URL}mockServiceWorker.js`,
+    },
+  })
 
   ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
