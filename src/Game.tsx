@@ -4,8 +4,11 @@ import { Application, Graphics } from 'pixi.js'
 
 interface GameProps {
   onExit: () => void
+  onComplete: (result: GameResult) => void
+  onRestart: () => void
   duration: number
   spawnInterval: number
+  saveStatus: 'idle' | 'saving' | 'saved' | 'failed'
 }
 
 type EnemyType = 'chaser' | 'shooter'
@@ -34,10 +37,10 @@ interface Effect {
   maxLife: number
 }
 
-interface GameResult {
+export interface GameResult {
   score: number
   played: number
-  reason: EndReason
+  reason: 'time' | 'health'
 }
 
 const CONFIG = {
@@ -82,8 +85,10 @@ function makeHealthBar(hp: number, maxHp: number) {
 
 export default function Game({
   onExit,
+  onComplete,
   duration,
   spawnInterval,
+  saveStatus,
 }: GameProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [hud, setHud] = useState({
@@ -97,6 +102,9 @@ export default function Game({
 
   const pausedRef = useRef(false)
   const finishedRef = useRef(false)
+
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   function togglePause() {
     if (finishedRef.current) return
@@ -115,8 +123,7 @@ export default function Game({
   }
 
   useEffect(() => {
-    const container = containerRef.current
-  
+    const container = containerRef.current  
     if (!container) return
   
     const host: HTMLDivElement = container
@@ -299,25 +306,31 @@ export default function Game({
         }
       }
 
-      function endGame(reason: EndReason) {
-        if (!active) return
+    
+function endGame(reason: EndReason) {
+  if (!active) return
 
-        active = false
-        finishedRef.current = true
-        pausedRef.current = false
+  active = false
+  finishedRef.current = true
+  pausedRef.current = false
 
-        setHud({
-          score,
-          hp: Math.max(0, hp),
-          time: Math.max(0, Math.ceil(duration - elapsed)),
-        })
+  const finalResult: GameResult = {
+    score,
+    played: Math.min(duration, Math.floor(elapsed)),
+    reason,
+  }
 
-        setResult({
-          score,
-          played: Math.min(duration, Math.floor(elapsed)),
-          reason,
-        })
-      }
+  setHud({
+    score,
+    hp: Math.max(0, hp),
+    time: Math.max(0, Math.ceil(duration - elapsed)),
+  })
+
+  setResult(finalResult)
+
+  onCompleteRef.current(finalResult)
+}
+
 
       function handleKeyDown(event: KeyboardEvent) {
         const key = event.key.toLowerCase()
@@ -657,6 +670,12 @@ export default function Game({
             <h2>🏴‍☠️ BATTLE FINISHED</h2>
             <p>Score: {result.score}</p>
             <p>Played time: {result.played}s</p>
+            <p className="save-status">
+              {saveStatus === 'saving' && '⏳ Saving match...'}
+              {saveStatus === 'saved' && '✓ Match saved successfully!'}
+              {saveStatus === 'failed' && '⚠ Failed to save match.'}
+              {saveStatus === 'idle' && 'Preparing match record...'}
+            </p>
             <p>
               End reason:{' '}
               {result.reason === 'health'

@@ -267,3 +267,58 @@ footer {
   width: 100%;
   margin-top: 12px;
 }
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.panel table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  color: #f2e7ce;
+  font-size: 14px;
+}
+
+.panel th,
+.panel td {
+  padding: 12px 10px;
+  text-align: center;
+  border-bottom: 1px solid rgba(218, 171, 85, 0.25);
+}
+
+.panel th {
+  color: #e7b65d;
+  font-weight: 700;
+}
+
+.panel tr:hover td {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.pagination button {
+  width: auto;
+  padding: 10px 18px;
+  font-size: 14px;
+}
+
+.pagination span {
+  white-space: nowrap;
+  font-size: 15px;
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
