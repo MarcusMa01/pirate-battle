@@ -166,8 +166,10 @@ footer {
 
 .game-wrapper {
   width: min(1000px, 92vw, 150vh);
+  max-width: 100%;
   margin: 20px auto;
   box-sizing: border-box;
+  flex: 1 0 auto;
 }
 
 .game-toolbar {
@@ -321,4 +323,265 @@ footer {
 .pagination button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.touch-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+
+.touch-movement,
+.touch-weapons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.touch-row {
+  display: flex;
+  gap: 8px;
+}
+
+.touch-controls button {
+  min-width: 56px;
+  min-height: 56px;
+  padding: 10px;
+  touch-action: none;
+  cursor: pointer;
+}
+
+@media (min-width: 951px) {
+  .touch-controls {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .touch-controls {
+    gap: 8px;
+  }
+
+  .touch-controls button {
+    min-width: 44px;
+    min-height: 48px;
+    padding: 6px;
+    font-size: 12px;
+  }
+}
+
+/* Mobile portrait layout */
+@media (max-width: 600px) {
+  .game-wrapper {
+    width: 100%;
+    max-width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+
+  .game-controls {
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: center;
+    margin: 8px 0;
+  }
+
+  .touch-controls {
+    gap: 8px;
+    padding: 8px 0 16px;
+  }
+
+  .touch-controls button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px;
+    font-size: 13px;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+@media (max-width: 600px) {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
+/* Touch controls for phones in landscape mode */
+@media (max-width: 950px) and (orientation: landscape) {
+  .touch-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .touch-controls button {
+    min-width: 48px;
+    min-height: 48px;
+    padding: 8px;
+    font-size: 14px;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .game-controls {
+    font-size: 12px;
+    margin: 6px 0;
+  }
+}
+/* Mobile portrait: allow vertical scrolling */
+@media (max-width: 600px) and (orientation: portrait) {
+  html,
+  body,
+  #root {
+    height: auto !important;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto !important;
+  }
+
+  .game-wrapper {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .touch-controls {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 24px;
+  }
+}
+/* iPhone portrait: responsive gameplay */
+@media (max-width: 600px) and (orientation: portrait) {
+  html,
+  body,
+  #root,
+  .app {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  .game-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 10px auto;
+    padding: 0 10px;
+    height: auto;
+    overflow: visible;
+    flex: 1 0 auto;
+  }
+
+  .topbar {
+    padding: 12px 4%;
+    gap: 8px;
+  }
+
+  .logo {
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  .version {
+    font-size: 9px;
+    letter-spacing: 0;
+  }
+
+  .game-toolbar {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .game-toolbar span {
+    font-size: 14px;
+  }
+
+  .game-toolbar button {
+    min-width: auto;
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  .battle-hud {
+    gap: 8px;
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .battle-hud button {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .game-arena {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+
+  .game-controls {
+    font-size: 10px;
+    line-height: 1.5;
+    margin: 8px 0;
+  }
+
+  .touch-controls {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-top: 10px;
+    padding-bottom: 20px;
+  }
+
+  .touch-controls button {
+    min-width: 42px;
+    min-height: 44px;
+    padding: 6px;
+    font-size: 12px;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  footer {
+    padding: 12px 4%;
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 600px) and (orientation: portrait) {
+  .app:has(.game-wrapper) {
+    min-height: 100dvh;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .app:has(.game-wrapper) .game-wrapper {
+    flex: 1 0 auto;
+  }
+
+  .app:has(.game-wrapper) footer {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
 }

@@ -21,6 +21,7 @@ async function startApp() {
     serviceWorker: {
       url: `${import.meta.env.BASE_URL}mockServiceWorker.js`,
     },
+
   })
 
   ReactDOM.createRoot(document.getElementById('root')!).render(

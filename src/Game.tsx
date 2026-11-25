@@ -102,18 +102,35 @@ export default function Game({
 
   const pausedRef = useRef(false)
   const finishedRef = useRef(false)
+  const touchKeysRef = useRef<Record<string, boolean>>({})
 
   const onCompleteRef = useRef(onComplete)
   onCompleteRef.current = onComplete
+
+  function pressTouchKey(key: string) {
+    if (finishedRef.current || pausedRef.current) return
+
+    touchKeysRef.current[key] = true
+  }
+
+  function releaseTouchKey(key: string) {
+    touchKeysRef.current[key] = false
+  }
 
   function togglePause() {
     if (finishedRef.current) return
 
     pausedRef.current = !pausedRef.current
+
+    if (pausedRef.current) {
+      touchKeysRef.current = {}
+    }
+
     setPaused(pausedRef.current)
   }
 
   function restart() {
+    touchKeysRef.current = {}
     pausedRef.current = false
     finishedRef.current = false
     setPaused(false)
@@ -123,11 +140,11 @@ export default function Game({
   }
 
   useEffect(() => {
-    const container = containerRef.current  
+    const container = containerRef.current
     if (!container) return
-  
+
     const host: HTMLDivElement = container
-  
+
     let cancelled = false
     let pixi: Application | null = null
     let cleanupGame: (() => void) | undefined
@@ -157,6 +174,8 @@ export default function Game({
       host.appendChild(app.canvas)
 
       const keys: Record<string, boolean> = {}
+      const isPressed = (key: string) =>
+        Boolean(keys[key] || touchKeysRef.current[key])
       const enemies: Enemy[] = []
       const bullets: Bullet[] = []
       const effects: Effect[] = []
@@ -193,13 +212,13 @@ export default function Game({
 
       function updateHealthBars() {
         const ratio = Math.max(0, hp / CONFIG.playerHp)
-      
+
         playerBar.clear()
         playerBar.rect(-22, -37, 44, 6).fill('#401d23')
         playerBar
           .rect(-22, -37, 44 * ratio, 6)
           .fill(ratio > 0.35 ? '#61df83' : '#ff6262')
-      
+
         playerBar.position.set(player.x, player.y)
       }
 
@@ -306,7 +325,7 @@ export default function Game({
         }
       }
 
-    
+
 function endGame(reason: EndReason) {
   if (!active) return
 
@@ -359,6 +378,7 @@ function endGame(reason: EndReason) {
           setPaused(true)
         }
         Object.keys(keys).forEach((key) => delete keys[key])
+        touchKeysRef.current = {}
       }
 
       function handleVisibility() {
@@ -391,17 +411,17 @@ function endGame(reason: EndReason) {
         }
 
         // Player rotation
-        if (keys['a'] || keys['arrowleft']) {
+        if (isPressed('a') || keys['arrowleft']) {
           player.rotation -= CONFIG.rotationSpeed * dt
         }
-        if (keys['d'] || keys['arrowright']) {
+        if (isPressed('d') || keys['arrowright']) {
           player.rotation += CONFIG.rotationSpeed * dt
         }
 
         // Player movement
         let movement = 0
-        if (keys['w'] || keys['arrowup']) movement = 1
-        if (keys['s'] || keys['arrowdown']) movement = -0.65
+        if (isPressed('w') || keys['arrowup']) movement = 1
+        if (isPressed('s') || keys['arrowdown']) movement = -0.65
 
         const previousX = player.x
         const previousY = player.y
@@ -428,17 +448,17 @@ function endGame(reason: EndReason) {
         }
 
         // Player weapons
-        if (keys[' '] && frontCooldown <= 0) {
+        if (isPressed(' ') && frontCooldown <= 0) {
           fire(player.x, player.y, player.rotation, 'player')
           frontCooldown = CONFIG.frontCooldown
         }
 
-        if (keys['q'] && sideCooldown <= 0) {
+        if (isPressed('q') && sideCooldown <= 0) {
           fireSide(-1)
           sideCooldown = CONFIG.sideCooldown
         }
 
-        if (keys['e'] && sideCooldown <= 0) {
+        if (isPressed('e') && sideCooldown <= 0) {
           fireSide(1)
           sideCooldown = CONFIG.sideCooldown
         }
@@ -630,6 +650,7 @@ function endGame(reason: EndReason) {
 
     return () => {
       cancelled = true
+      touchKeysRef.current = {}
       cleanupGame?.()
 
       if (pixi) {
@@ -663,6 +684,85 @@ function endGame(reason: EndReason) {
         W/S: Move · A/D: Rotate · SPACE: Front cannon ·
         Q: Left volley · E: Right volley · P: Pause
       </p>
+
+
+<div className="touch-controls">
+  <div className="touch-movement">
+    <button
+      aria-label="Move forward"
+      onPointerDown={() => pressTouchKey('w')}
+      onPointerUp={() => releaseTouchKey('w')}
+      onPointerCancel={() => releaseTouchKey('w')}
+      onPointerLeave={() => releaseTouchKey('w')}
+    >
+      ▲
+    </button>
+
+    <div className="touch-row">
+      <button
+        aria-label="Rotate left"
+        onPointerDown={() => pressTouchKey('a')}
+        onPointerUp={() => releaseTouchKey('a')}
+        onPointerCancel={() => releaseTouchKey('a')}
+        onPointerLeave={() => releaseTouchKey('a')}
+      >
+        ↶
+      </button>
+
+      <button
+        aria-label="Move backward"
+        onPointerDown={() => pressTouchKey('s')}
+        onPointerUp={() => releaseTouchKey('s')}
+        onPointerCancel={() => releaseTouchKey('s')}
+        onPointerLeave={() => releaseTouchKey('s')}
+      >
+        ▼
+      </button>
+
+      <button
+        aria-label="Rotate right"
+        onPointerDown={() => pressTouchKey('d')}
+        onPointerUp={() => releaseTouchKey('d')}
+        onPointerCancel={() => releaseTouchKey('d')}
+        onPointerLeave={() => releaseTouchKey('d')}
+      >
+        ↷
+      </button>
+    </div>
+  </div>
+
+  <div className="touch-weapons">
+    <button
+      onPointerDown={() => pressTouchKey(' ')}
+      onPointerUp={() => releaseTouchKey(' ')}
+      onPointerCancel={() => releaseTouchKey(' ')}
+      onPointerLeave={() => releaseTouchKey(' ')}
+    >
+      FIRE
+    </button>
+
+    <div className="touch-row">
+      <button
+        onPointerDown={() => pressTouchKey('q')}
+        onPointerUp={() => releaseTouchKey('q')}
+        onPointerCancel={() => releaseTouchKey('q')}
+        onPointerLeave={() => releaseTouchKey('q')}
+      >
+        LEFT
+      </button>
+
+      <button
+        onPointerDown={() => pressTouchKey('e')}
+        onPointerUp={() => releaseTouchKey('e')}
+        onPointerCancel={() => releaseTouchKey('e')}
+        onPointerLeave={() => releaseTouchKey('e')}
+      >
+        RIGHT
+      </button>
+    </div>
+  </div>
+</div>
+
 
       {result && (
         <div className="result-overlay">
